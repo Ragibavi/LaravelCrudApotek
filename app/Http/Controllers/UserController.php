@@ -24,10 +24,10 @@ class UserController extends Controller
             $name = 'name' => 'required',
             $email = 'email' => 'required',
             $role = 'role' => 'required',
+            $password = bcrypt(substr($email, 0, 3) . substr($name, 0, 3))
         ]);
 
-        $password = bcrypt(substr($email, 0, 3) . substr($name, 0, 3));
-
+        
         User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -57,17 +57,28 @@ class UserController extends Controller
             $name = 'name' => 'required',
             $email = 'email' => 'required',
             $role = 'role' => 'required',
-            $password = 'password' => 'required',
+            $password = 'password'
         ]);
 
-        $password = bcrypt($password);
+        $password = $request->password;
 
-        User::where('id', $id)->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => $request->role,
-            'password' => $password,
-        ]);
+        if(empty($password)){
+            User::where('id', $id)->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'role' => $request->role,
+            ]);
+        }
+        else{
+            $password = bcrypt($password);
+            User::where('id', $id)->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'role' => $request->role,
+                'password' => $password
+            ]);
+        }
+
 
         return redirect()->route('user.table')->with('success', 'Data Berhasil Diedit');
     }

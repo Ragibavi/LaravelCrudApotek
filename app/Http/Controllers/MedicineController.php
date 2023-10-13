@@ -100,17 +100,31 @@ class MedicineController extends Controller
         return view('medicine.table', compact('medicines'));
     }
 
-    public function adminStock()
-    {
-        $medicines = Medicine::orderBy('stock', 'ASC')->get();
-        
-        return view('medicine.adminStock')->with('medicines', $medicines);
+    public function stock(){
+        $medicines = Medicine::orderBy('stock','ASC')->get();
+
+        return view('medicine.stock', compact('medicines'));
     }
 
-    public function editStock($id)
-    {
-        $medicines = Medicine::findOrFail($id);
+    public function stockEdit($id){
+        $medicine = Medicine::find($id);
 
-        return view('medicine.editStock')->with('medicines', $medicines);
+        return response()->json($medicine);
     }
+    
+    public function stockUpdate(Request $request, $id){
+        $request->validate([
+            'stock' => 'required|numeric',
+        ]);
+
+        $medicine = Medicine::find($id);
+
+        if($request->stock <= $medicine['stock']){
+            return response()->json(["message" => "Stock yang diinput tidak boleh kurang dari stock sebelumnya"],400);
+        } else {
+            $medicine->update(["stock" => $request->stock]);
+            return response()->json("berhasil",200);
+        }
+    }
+
 }
